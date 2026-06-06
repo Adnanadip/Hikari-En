@@ -10,7 +10,12 @@ const sizes = {width: window.innerWidth, height: window.innerHeight, aspect: win
 const renderer = new THREE.WebGLRenderer({canvas: canvas, antialias: true});
 renderer.setSize( sizes.width, sizes.height );
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.shadowMap.enabled = true;
+renderer.outputColorSpace = THREE.NoColorSpace;
+renderer.toneMapping = THREE.ReinhardToneMapping;
+renderer.toneMappingExposure = 5;
+
 
 //---------camera-------------
 const camera = new THREE.OrthographicCamera( -sizes.aspect*5, sizes.aspect*5, 5, -5, 1, 1000 );
@@ -24,20 +29,27 @@ controls.update();
 
 
 //--------------light-----------
-const sun = new THREE.DirectionalLight( 0xFFFFFF, 1 );
+const sun = new THREE.DirectionalLight( 0xFFFFFF);
 sun.castShadow = true;
-sun.position.set(75, 50, 75);
+
+const light = new THREE.AmbientLight( 0x404040, 0.5 ); 
+scene.add( light )
+
+sun.position.set(50, 150, 50);
+sun.shadow.mapSize.width = 4096;
+sun.shadow.mapSize.height = 4096;
 sun.shadow.camera.left = -125;
 sun.shadow.camera.right = 125;
-sun.shadow.camera.top = 50;
-sun.shadow.camera.bottom = -50;
+sun.shadow.camera.top = 100;
+sun.shadow.camera.bottom = -75;
+sun.shadow.normalBias = 0.3;
 
 scene.add(sun);
 
 const Shadowhelper = new THREE.CameraHelper( sun.shadow.camera );
 scene.add( Shadowhelper );
 
-const helper = new THREE.DirectionalLightHelper(sun, 5 );
+const helper = new THREE.DirectionalLightHelper(sun, 5);
 scene.add( helper );
 
 //---------------GLTF-------------------
