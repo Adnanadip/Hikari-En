@@ -12,9 +12,9 @@ renderer.setSize( sizes.width, sizes.height );
 renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
 renderer.shadowMap.type = THREE.PCFSoftShadowMap;
 renderer.shadowMap.enabled = true;
-renderer.outputColorSpace = THREE.NoColorSpace;
+renderer.outputColorSpace = THREE.SRGBColorSpace;
 renderer.toneMapping = THREE.ReinhardToneMapping;
-renderer.toneMappingExposure = 5;
+renderer.toneMappingExposure = 7;
 
 
 //---------camera-------------
@@ -32,7 +32,7 @@ controls.update();
 const sun = new THREE.DirectionalLight( 0xFFFFFF);
 sun.castShadow = true;
 
-const light = new THREE.AmbientLight( 0x404040, 0.5 ); 
+const light = new THREE.AmbientLight( 0x404040, 0.5); 
 scene.add( light )
 
 sun.position.set(50, 150, 50);
@@ -71,7 +71,7 @@ loader.load(
     }
 )
 
-function handleResize(){
+function onResize(){
     sizes.width = window.innerWidth;
     sizes.height = window.innerHeight;
     sizes.aspect = window.innerWidth/window.innerHeight;
@@ -87,9 +87,27 @@ function handleResize(){
     renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
 }
 
-window.addEventListener("resize", handleResize)
+const raycaster = new THREE.Raycaster();
+const pointer = new THREE.Vector2();
+
+function onPointerMove(event){
+    pointer.x = (event.clientX / window.innerWidth) * 2 - 1;
+    pointer.y = (event.clientY / window.innerHeight) * 2 + 1;
+}
+
+window.addEventListener("resize", onResize);
+window.addEventListener("pointermove", onPointerMove);
 
 function animate( time ) {
+    
+    raycaster.setFromCamera(pointer, camera)
+
+    const intersects = raycaster.intersectObjects(scene.children);
+
+    for(let i = 0; i< intersects.length; i = i+1){
+        console.log(intersects[i].object.name)
+    }
+
     renderer.render( scene, camera );
 }
 renderer.setAnimationLoop( animate );
